@@ -1,0 +1,8 @@
+id,nombre,rol,x,y,fuente
+centro_tula,Centro de Tula (catedral),origen,464278.6,2217338.6,OSM/coordenada
+zona_arqueologica,Zona arqueológica de Tula (Atlantes),origen,464332.6,2218579.7,OSM
+estacion_tren,"Estación Tula, tren México-Querétaro",origen,,,PENDIENTE: confirmar coordenada con el equipo del tren
+tres_culturas,Parque inundable Tres Culturas,destino,463963.7,2219524.3,centroide zona inundable
+laguna_bojay,Laguna de Bojay,destino,463568.2,2221137.6,centroide laguna
+bojay_colonia,San Francisco Bojay (colonia),destino,464296.8,2221694.1,INEGI 1:50k
+bojay_pueblo,San Francisco Bojay (pueblo),destino,462024.1,2223209.4,INEGI 1:50k

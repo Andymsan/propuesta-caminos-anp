@@ -1,0 +1,85 @@
+# Propuesta de caminos ANP
+
+Caminos para llegar a **Tres Culturas** y a **Bojay** dentro de la propuesta de APFF Corredor biocultural Tres Culturas (1,493 ha), con tres condiciones:
+
+1. **No incentivar la urbanización** dentro del ANP.
+2. **Apoyar las actividades económicas** del sitio: agricultura, ganadería, turismo de naturaleza y comercio en Bojay y La Malinche.
+3. **Respetar drenes agrícolas y canales**: no ocupar su zona federal y resolver cada cruce con una estructura.
+
+![Mapa de la propuesta](resultados/mapa_propuesta.png)
+
+Mapa interactivo con satélite: [`resultados/mapa_interactivo.html`](resultados/mapa_interactivo.html) (descargar y abrir en el navegador).
+
+## Idea central: estacionarse en el borde, caminar o pedalear adentro
+
+| Tipo | Usuarios | Dónde | Superficie | Control |
+|---|---|---|---|---|
+| **A. Sendero / ciclovía** | Peatones, bicis | Sobre bordos existentes (Tres Culturas y perímetro de Bojay), barranca PN Tula–Tres Culturas | Terracería compactada o permeable, sin asfalto | Bolardos removibles en cada entrada |
+| **B. Camino de saca y servicio** | Ejidatarios, ganado, emergencias, mantenimiento | Brechas agrícolas existentes dentro del ANP | Terracería existente, solo mantenimiento | Pluma o candado del ejido; sin ampliación |
+| **C. Acceso vehicular de borde** | Visitantes en auto | Calles existentes hasta el límite urbano | Lo que ya existe | Termina en un estacionamiento de borde |
+
+No se propone ningún camino vehicular nuevo dentro del ANP.
+
+## Resultados
+
+Rutas de menor costo sobre la red existente (OSM + bordos), con conectores nuevos de hasta 250 m solo para peatones. Detalle en [`resultados/rutas_resumen.csv`](resultados/rutas_resumen.csv).
+
+| Modo | Origen | Destino | km | km bordo | km nuevo | km zona inundable | km riesgo urbanización | Cruces con agua |
+|---|---|---|---|---|---|---|---|---|
+| A pie / bici | Centro | Tres Culturas | 3.6 | 1.7 | 0.04 | 1.7 | 0 | 1 |
+| Auto → borde | Centro | Tres Culturas | 2.3 + 1.1 a pie | — | 0 | 0 | 0 | 0 |
+| A pie / bici | Zona arqueológica | Tres Culturas | 3.4 | 1.0 | 0 | 1.1 | 0 | 0 |
+| A pie / bici | Centro | Laguna de Bojay | 7.4 | 2.5 | 0.10 | 1.0 | 0 | 1 |
+| Auto → borde | Centro | Laguna de Bojay | 6.3 + 1.6 a pie | — | 0 | 0 | 0 | 4 |
+| A pie / bici | Centro | SF Bojay (colonia) | 6.0 | 1.0 | 0.06 | 1.0 | 0 | 2 |
+| A pie / bici | Centro | SF Bojay (pueblo) | 7.6 | 0 | 0 | 0.1 | 0 | 4 |
+| Auto | Centro | SF Bojay (pueblo) | 11.7 | — | 0 | 0 | 0 | 1 |
+
+**km riesgo urbanización**: km de ruta vehicular dentro del ANP en suelo no urbano, donde mejorar el acceso en auto atraería lotificación.
+
+Hallazgos:
+
+- **Ninguna ruta vehicular necesita entrar al ANP** (riesgo de urbanización = 0 km). Basta con 4 estacionamientos de borde: sureste de Tres Culturas (1.1 km a pie hasta el parque), norte de la laguna de Bojay (1.6 km), colonia Bojay y pueblo Bojay.
+- **Los bordos ya son el sendero.** De Centro a Tres Culturas, el 47% del recorrido va sobre bordo; a la laguna de Bojay, 2.5 km. Coincide con la ciclovía Tula–Bojay del recorrido de noviembre de 2025.
+- **Casi no hace falta construir.** Los conectores nuevos en las rutas suman menos de 150 m. Hay 9.1 km de conectores candidatos en el área, 1.2 km de ellos dentro del ANP o a menos de 300 m.
+- **El punto de tensión es Tula – SF Bojay (pueblo).** A pie se cruza el ANP por 3.9 km de brecha rural (7.6 km); en auto se rodea (11.7 km). Esa brecha debe quedar como **camino tipo B**: sin pavimentar y con acceso restringido. Si se pavimenta, se vuelve el eje de urbanización del cerro.
+- **27 cruces con canales o corrientes** en las rutas (24 en rutas a pie). Cada uno necesita una alcantarilla o puente que no reduzca la sección hidráulica. El grupo sobre el camino a la colonia Bojay probablemente es un desfase entre el canal DR003 y el camino OSM, que corren paralelos; hay que verificarlo en campo.
+- **Caminos de saca**: 1.2 km de brechas dentro del ANP dan servicio directo a parcelas. Se conservan como tipo B.
+
+## Metodología e investigación
+
+- [`docs/metodologia.md`](docs/metodologia.md): cómo se hacen estos procesos (marco legal, pasos, criterios técnicos) y cómo se modeló aquí.
+- [`docs/criterios_diseno.md`](docs/criterios_diseno.md): reglas para no inducir urbanización y para respetar drenes y canales.
+- [`docs/guion_ppt.md`](docs/guion_ppt.md): guion lámina por lámina para la presentación.
+
+## Archivos
+
+| Archivo | Contenido |
+|---|---|
+| `datos/capas.gpkg` | Capas base recortadas (EPSG:32614): ANP, PN Tula, zona inundable, laguna, bordos, canales DR003 e INEGI, corrientes, edificios, parcelas RAN y de zona federal, colectores, OSM |
+| `datos/puntos.csv` | Orígenes y destinos (editable). La **estación del tren** está pendiente de coordenada |
+| `datos/osm.json` | Descarga de OpenStreetMap (Overpass, 18 nov 2026) |
+| `preparar_capas.py` | Arma `capas.gpkg` desde la carpeta SEMARNAT |
+| `red_y_rutas.py` | Red, costos por modo, rutas, estacionamientos de borde, cruces y caminos de saca |
+| `mapa.py` | Mapa PNG e interactivo HTML |
+| `resultados/red.gpkg` | Capas `red`, `rutas`, `estacionamientos_borde`, `cruces_agua`, `caminos_saca`, `conectores_candidatos` |
+
+## Uso
+
+```
+pip install -r requirements.txt
+python preparar_capas.py "D:/03_Trabajo/01_SEMARNAT" datos/osm.json D:/bordos-tres-culturas/datos/bordos.gpkg datos/capas.gpkg
+python red_y_rutas.py datos/capas.gpkg datos/puntos.csv resultados
+python mapa.py datos/capas.gpkg datos/puntos.csv resultados
+```
+
+Los parámetros de costo (`ACTIVO`, `VEHICULAR`, `CASTIGO_ANP_RURAL`, etc.) están al inicio de `red_y_rutas.py`.
+
+## Pendientes y limitaciones
+
+- **Estación del tren México–Querétaro**: no hay coordenada en los datos. Agregarla a `datos/puntos.csv` y volver a correr.
+- **Drenes agrícolas**: no existe una capa; DR003 solo trae canales. Hay que digitalizarlos (ortofoto y recorrido) o derivarlos del MDT del IMTA y sumarlos a `canales`.
+- **Bordo Tres Culturas–Bojay bajo el Arco Norte**: no está en `bordos.gpkg`. Quedan ~260 m sin datos entre el fin del bordo y la laguna. Hay que digitalizarlo para que la ruta a Bojay use la ciclovía continua.
+- **Sendero de la barranca** PN Tula–Tres Culturas: no está en OSM. Hay que levantarlo con GPS.
+- Zona inundable: los senderos tipo A pueden inundarse cada 3–5 años según la propuesta del parque. Se aceptan como estacionales; nada vehicular entra ahí.
+- Fuente de caminos: OSM. Datos © colaboradores de OpenStreetMap, ODbL.
