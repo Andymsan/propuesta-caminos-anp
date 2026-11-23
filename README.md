@@ -46,6 +46,26 @@ Hallazgos:
 - **27 cruces con canales o corrientes** en las rutas (24 en rutas a pie). Cada uno necesita una alcantarilla o puente que no reduzca la sección hidráulica. El grupo sobre el camino a la colonia Bojay probablemente es un desfase entre el canal DR003 y el camino OSM, que corren paralelos; hay que verificarlo en campo.
 - **Caminos de saca**: 1.2 km de brechas dentro del ANP dan servicio directo a parcelas. Se conservan como tipo B.
 
+## Solicitudes del ejido de San Francisco Bojay
+
+El 20 de noviembre de 2026 el ejido entregó los caminos que necesita (KMZ con 9 puntos fotografiados).
+
+![Solicitudes del ejido](resultados/mapa_caminos_ejido.png)
+
+| Solicitud | km | En ANP | Sobre camino existente | Canales DR003 |
+|---|---|---|---|---|
+| Andador peatonal | 4.7 | 4.1 km | Bordos | A 16 m, sin cruce |
+| Rehabilitación de caminos | 3.0 | 0.55 km | 98% | A 20 m, sin cruce |
+| Camino a parcelas | 1.4 | 0 | 65% | **Cruza 1 canal**: requiere alcantarilla o puente |
+| Acceso vehicular al bordo | 0.5 | 0.5 km | No | A 30 m, sin cruce |
+| Bache | Punto | No | Calle urbana | — |
+
+Encaje con la propuesta:
+
+- El andador y la rehabilitación coinciden con las rutas a pie de este análisis (2.1 y 2.9 km).
+- El camino a parcelas queda fuera del ANP y apoya la actividad agrícola.
+- El acceso vehicular al bordo es el único camino nuevo dentro del ANP. Se propone como camino tipo B: terracería de 4 m como máximo, pluma del ejido y sin servicios.
+
 ## Metodología e investigación
 
 - [`docs/metodologia.md`](docs/metodologia.md): cómo se hacen estos procesos (marco legal, pasos, criterios técnicos) y cómo se modeló aquí.
@@ -62,6 +82,10 @@ Hallazgos:
 | `preparar_capas.py` | Arma `capas.gpkg` desde la carpeta SEMARNAT |
 | `red_y_rutas.py` | Red, costos por modo, rutas, estacionamientos de borde, cruces y caminos de saca |
 | `mapa.py` | Mapa PNG e interactivo HTML |
+| `datos/ejidatarios.gpkg` | Caminos y bache solicitados por el ejido (KMZ del 20 nov 2026) |
+| `datos/fotos_puntos.csv` | Número, archivo y ubicación de cada foto del recorrido |
+| `mapa_ejido.py` | Mapa satelital de las solicitudes con fotos numeradas y canales DR003 |
+| `nota_caminos.py` | Nota conceptual en Word con tabla, mapa y fotos (las fotos no están en el repo) |
 | `resultados/red.gpkg` | Capas `red`, `rutas`, `estacionamientos_borde`, `cruces_agua`, `caminos_saca`, `conectores_candidatos` |
 
 ## Uso
@@ -71,6 +95,8 @@ pip install -r requirements.txt
 python preparar_capas.py "D:/03_Trabajo/01_SEMARNAT" datos/osm.json D:/bordos-tres-culturas/datos/bordos.gpkg datos/capas.gpkg
 python red_y_rutas.py datos/capas.gpkg datos/puntos.csv resultados
 python mapa.py datos/capas.gpkg datos/puntos.csv resultados
+python mapa_ejido.py datos/capas.gpkg datos/ejidatarios.gpkg datos/fotos_puntos.csv "<carpeta distritos de riego>" resultados/mapa_caminos_ejido.png
+python nota_caminos.py resultados/mapa_caminos_ejido.png datos/fotos_puntos.csv <carpeta_fotos> documentos/nota.docx
 ```
 
 Los parámetros de costo (`ACTIVO`, `VEHICULAR`, `CASTIGO_ANP_RURAL`, etc.) están al inicio de `red_y_rutas.py`.

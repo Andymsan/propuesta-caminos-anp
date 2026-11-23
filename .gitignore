@@ -2,3 +2,5 @@ __pycache__/
 *.gpkg-wal
 *.gpkg-shm
 .venv/
+datos/teselas/
+documentos/
