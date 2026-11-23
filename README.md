@@ -6,11 +6,34 @@ Caminos para llegar a **Tres Culturas** y a **Bojay** dentro de la propuesta de 
 2. **Apoyar las actividades económicas** del sitio: agricultura, ganadería, turismo de naturaleza y comercio en Bojay y La Malinche.
 3. **Respetar drenes agrícolas y canales**: no ocupar su zona federal y resolver cada cruce con una estructura.
 
+## Solicitudes del ejido de San Francisco Bojay
+
+El 20 de noviembre de 2026 el ejido entregó los caminos que necesita (KMZ con 9 puntos fotografiados).
+
+![Solicitudes del ejido](resultados/mapa_caminos_ejido.png)
+
+| Solicitud | km | En ANP | Sobre camino existente | Canales DR003 |
+|---|---|---|---|---|
+| Andador peatonal | 4.7 | 4.1 km | Bordos | A 16 m, sin cruce |
+| Rehabilitación de caminos | 3.0 | 0.55 km | 98% | A 20 m, sin cruce |
+| Camino a parcelas | 1.4 | 0 | 65% | **Cruza 1 canal**: requiere alcantarilla o puente |
+| Acceso vehicular al bordo | 0.5 | 0.5 km | No | A 30 m, sin cruce |
+| Bache | Punto | No | Calle urbana | — |
+
+Encaje con la propuesta:
+
+- El andador y la rehabilitación coinciden con las rutas a pie de este análisis (2.1 y 2.9 km).
+- El camino a parcelas queda fuera del ANP y apoya la actividad agrícola.
+- El acceso vehicular al bordo es el único camino nuevo dentro del ANP. Se propone como camino tipo B: terracería de 4 m como máximo, pluma del ejido y sin servicios.
+- Con base en esto se prepararon una nota conceptual, una carta del Comisariado al gobernador y un oficio al presidente municipal (no están en el repo).
+
+## Análisis de rutas
+
 ![Mapa de la propuesta](resultados/mapa_propuesta.png)
 
 Mapa interactivo con satélite: [`resultados/mapa_interactivo.html`](resultados/mapa_interactivo.html) (descargar y abrir en el navegador).
 
-## Idea central: estacionarse en el borde, caminar o pedalear adentro
+### Idea central: estacionarse en el borde, caminar o pedalear adentro
 
 | Tipo | Usuarios | Dónde | Superficie | Control |
 |---|---|---|---|---|
@@ -18,9 +41,9 @@ Mapa interactivo con satélite: [`resultados/mapa_interactivo.html`](resultados/
 | **B. Camino de saca y servicio** | Ejidatarios, ganado, emergencias, mantenimiento | Brechas agrícolas existentes dentro del ANP | Terracería existente, solo mantenimiento | Pluma o candado del ejido; sin ampliación |
 | **C. Acceso vehicular de borde** | Visitantes en auto | Calles existentes hasta el límite urbano | Lo que ya existe | Termina en un estacionamiento de borde |
 
-No se propone ningún camino vehicular nuevo dentro del ANP.
+El análisis no requiere ningún camino vehicular nuevo dentro del ANP; la única excepción es el acceso al bordo que pidió el ejido para llegar a sus parcelas.
 
-## Resultados
+### Resultados
 
 Rutas de menor costo sobre la red existente (OSM + bordos), con conectores nuevos de hasta 250 m solo para peatones. Detalle en [`resultados/rutas_resumen.csv`](resultados/rutas_resumen.csv).
 
@@ -45,26 +68,6 @@ Hallazgos:
 - **El punto de tensión es Tula – SF Bojay (pueblo).** A pie se cruza el ANP por 3.9 km de brecha rural (7.6 km); en auto se rodea (11.7 km). Esa brecha debe quedar como **camino tipo B**: sin pavimentar y con acceso restringido. Si se pavimenta, se vuelve el eje de urbanización del cerro.
 - **27 cruces con canales o corrientes** en las rutas (24 en rutas a pie). Cada uno necesita una alcantarilla o puente que no reduzca la sección hidráulica. El grupo sobre el camino a la colonia Bojay probablemente es un desfase entre el canal DR003 y el camino OSM, que corren paralelos; hay que verificarlo en campo.
 - **Caminos de saca**: 1.2 km de brechas dentro del ANP dan servicio directo a parcelas. Se conservan como tipo B.
-
-## Solicitudes del ejido de San Francisco Bojay
-
-El 20 de noviembre de 2026 el ejido entregó los caminos que necesita (KMZ con 9 puntos fotografiados).
-
-![Solicitudes del ejido](resultados/mapa_caminos_ejido.png)
-
-| Solicitud | km | En ANP | Sobre camino existente | Canales DR003 |
-|---|---|---|---|---|
-| Andador peatonal | 4.7 | 4.1 km | Bordos | A 16 m, sin cruce |
-| Rehabilitación de caminos | 3.0 | 0.55 km | 98% | A 20 m, sin cruce |
-| Camino a parcelas | 1.4 | 0 | 65% | **Cruza 1 canal**: requiere alcantarilla o puente |
-| Acceso vehicular al bordo | 0.5 | 0.5 km | No | A 30 m, sin cruce |
-| Bache | Punto | No | Calle urbana | — |
-
-Encaje con la propuesta:
-
-- El andador y la rehabilitación coinciden con las rutas a pie de este análisis (2.1 y 2.9 km).
-- El camino a parcelas queda fuera del ANP y apoya la actividad agrícola.
-- El acceso vehicular al bordo es el único camino nuevo dentro del ANP. Se propone como camino tipo B: terracería de 4 m como máximo, pluma del ejido y sin servicios.
 
 ## Metodología e investigación
 
