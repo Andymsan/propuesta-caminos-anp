@@ -9,6 +9,7 @@ import sys
 import warnings
 
 import geopandas as gpd
+import shapely.ops
 import matplotlib.patheffects as pe
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -45,94 +46,90 @@ def satelite(x0, y0, x1, y1, z, cache):
     return img, ext
 
 
+FOTOS_NOTA = {1: 1, 2: 2, 3: 3, 4: 4, 6: 5, 8: 6}   # foto original -> número en la nota conceptual
+COLOSIO = "Calle Luis Donaldo Colosio"
+SANTA_ANA_OSM = [252732472, 252736656, 252736657]  # tramos OSM sin nombre de la carretera a Santa Ana
+ASPECTO = 451.27559 / 578   # ancho / alto del mapa en la nota
+CAPAS_REHAB = ["rehabilitacion_de_caminos", "camino_a_parcelas", "Acceso_vehicular_al_bordo"]
+
+
+def conexiones(capas):
+    """Calles con las que se conectan los caminos: Luis Donaldo Colosio y carretera a Santa Ana."""
+    cam = gpd.read_file(capas, layer="osm_caminos")
+    colosio = cam[cam.name == COLOSIO].dissolve().assign(nombre="Calle Luis Donaldo Colosio")
+    sa = cam[cam.osm_id.isin(SANTA_ANA_OSM)].dissolve().assign(nombre="Carretera a Santa Ana")
+    return pd.concat([colosio[["nombre", "geometry"]], sa[["nombre", "geometry"]]]).set_crs(32614).to_crs(3857)
+
+
+def recortar_en_santa_ana(g, con):
+    """Deja solo la parte del camino al poniente de su cruce con la carretera a Santa Ana."""
+    import shapely
+    linea = g.union_all()
+    sa = con[con.nombre == "Carretera a Santa Ana"].union_all()
+    cruce = linea.intersection(sa)
+    cruce = cruce if cruce.geom_type == "Point" else list(cruce.geoms)[0]
+    d = linea.project(cruce)
+    tramos = [shapely.ops.substring(linea, 0, d), shapely.ops.substring(linea, d, linea.length)]
+    oeste = min(tramos, key=lambda t: t.centroid.x)
+    return gpd.GeoDataFrame(geometry=[oeste], crs=g.crs)
+
+
+FOTO_4_EN_TRAMO = (464800, 2220076)  # la foto 4 se tomó al este de la carretera; se muestra sobre el tramo que queda
+
+
 def main(capas, ejido, fotos_csv, dr, salida):
+    """Mapa para la nota: solo vialidades a rehabilitar, fotos, río sin leyenda y calles de conexión."""
     L = lambda capa, src=capas: gpd.read_file(src, layer=capa).to_crs(3857)
-    and_ = L("andador_peatonal", ejido)
-    reh = L("rehabilitacion_de_caminos", ejido)
-    acc = L("Acceso_vehicular_al_bordo", ejido)
-    bac = L("Bache", ejido)
-    par = L("camino_a_parcelas", ejido)
-    caja = pd.concat([and_.geometry, reh.geometry, acc.geometry, par.geometry, bac.geometry]).total_bounds
-    x0, y0, x1, y1 = caja[0] - 450, caja[1] - 250, caja[2] + 350, caja[3] + 250
+    con = conexiones(capas)
+    capas_rehab = []
+    for c in CAPAS_REHAB:
+        g = L(c, ejido)
+        if c == "camino_a_parcelas":  # llega solo hasta la carretera a Santa Ana
+            g = recortar_en_santa_ana(g, con)
+        capas_rehab.append(g)
+    rehab = pd.concat(capas_rehab)
+    fotos = pd.read_csv(fotos_csv)
+    fotos = fotos[fotos.num.isin(FOTOS_NOTA)].assign(num=lambda d: d.num.map(FOTOS_NOTA))
+    fotos.loc[fotos.num == 4, ["x", "y"]] = FOTO_4_EN_TRAMO
+    fg = gpd.GeoDataFrame(fotos, geometry=gpd.points_from_xy(fotos.x, fotos.y), crs=32614).to_crs(3857)
+    caja = pd.concat([rehab.geometry, fg.geometry]).total_bounds
+    x0, y0, x1, y1 = caja[0] - 450, caja[1] - 650, caja[2] + 450, caja[3] + 250
+    # Misma proporción que la imagen de la nota (451 x 578 pt) para reemplazarla sin recortes
+    ancho = (y1 - y0) * ASPECTO
+    cx = (x0 + x1) / 2
+    x0, x1 = cx - ancho / 2, cx + ancho / 2
+    vista = gpd.GeoSeries.from_xy([x0, x1], [y0, y1]).union_all().envelope
 
     img, ext = satelite(x0, y0, x1, y1, 17, "datos/teselas")
     fig, ax = plt.subplots(figsize=(8.5, 11), dpi=220)
     ax.imshow(img, extent=ext, zorder=0)
     ax.imshow([[0]], extent=ext, cmap="gray", alpha=0.18, zorder=1)  # aclara un poco el fondo
 
-    cam = L("osm_caminos")
     agua = L("osm_agua")
-    tren = L("osm_tren").query("railway == 'construction'")
-    sec = gpd.read_file(f"{dr}/dr003_canales secundarios.kml").to_crs(3857)
-    gen = gpd.read_file(f"{dr}/dr003_canales generales.kml").to_crs(3857)
+    agua[agua.waterway == "river"].plot(ax=ax, color="#2b8cff", linewidth=2.4, zorder=3)  # río, sin leyenda
+    con.plot(ax=ax, color="white", linewidth=2.2, zorder=4, path_effects=[pe.withStroke(linewidth=4, foreground="black")])
+    rehab.plot(ax=ax, color="#ff8c00", linewidth=4.2, zorder=5, path_effects=[pe.withStroke(linewidth=6.5, foreground="black")])
 
-    # Referencias
-    pd.concat([sec, gen]).plot(ax=ax, color="#5ec8f2", linewidth=1.3, zorder=3)
-    agua[agua.waterway == "river"].plot(ax=ax, color="#2b8cff", linewidth=2.4, zorder=3)
-    cam[cam.highway.str.startswith("motorway")].plot(ax=ax, color="#ffffff", linewidth=1.2, alpha=0.8, zorder=3)
-    tren.plot(ax=ax, color="#ffffff", linewidth=1.4, linestyle=(0, (5, 3)), zorder=3)
-
-    # Propuesta
-    reh.plot(ax=ax, color="#ff8c00", linewidth=4, zorder=5, path_effects=[pe.withStroke(linewidth=6, foreground="black")])
-    and_.plot(ax=ax, color="#3ddc5f", linewidth=3.2, zorder=6, path_effects=[pe.withStroke(linewidth=5, foreground="black")])
-    par.plot(ax=ax, color="#00e5ff", linewidth=3.6, zorder=6, path_effects=[pe.withStroke(linewidth=5.5, foreground="black")])
-    acc.plot(ax=ax, color="#ff3df5", linewidth=3.6, zorder=6, path_effects=[pe.withStroke(linewidth=5.5, foreground="black")])
-    bac.plot(ax=ax, marker="X", color="#ff2020", markersize=170, edgecolor="white", linewidth=1.2, zorder=8)
-
-    # Etiquetas de referencia (fuera de la laguna para dejar Bojay limpio)
-    def etiqueta(xy, txt, size=8.5, rot=0, color="white", style="normal"):
-        ax.text(*xy, txt, color=color, fontsize=size, rotation=rot, weight="bold", style=style,
-                ha="center", va="center", path_effects=HALO, zorder=9)
-    lag = L("laguna_bojay").union_all()
-    c = lag.centroid
-    etiqueta((c.x - 120, c.y + 150), "Laguna\nde Bojay", 9.5, color="#bfe6ff", style="italic")
-    etiqueta((caja[2] - 450, caja[3] - 100), "San Francisco\nBojay", 10)
-    zi = L("zona_inundable").union_all().centroid
-    etiqueta((zi.x - 420, zi.y - 60), "Tres\nCulturas", 10)
-    etiqueta((caja[2] - 300, caja[1] + 150), "hacia el centro\nde Tula ↓", 8)
-    for capa_g, txt in ((cam[cam.name == "Autopista Arco Norte"], "Arco Norte"), (tren, "Tren México–Querétaro"),
-                        (agua[agua.waterway == "river"], "Río Tula")):
-        vis = capa_g.union_all().intersection(gpd.GeoSeries.from_xy([x0, x1], [y0, y1]).union_all().envelope)
-        if vis.is_empty:
-            continue
-        vis = max(getattr(vis, "geoms", [vis]), key=lambda s: s.length)
-        p = vis.interpolate({"Río Tula": 0.55, "Tren México–Querétaro": 0.25}.get(txt, 0.18), normalized=True)
-        etiqueta((p.x, p.y + 60), txt, 8, color="#f0f0f0")
-
-    # Calles con nombre más largas dentro del mapa
-    vista = gpd.GeoSeries.from_xy([x0, x1], [y0, y1]).union_all().envelope
-    calles = cam[cam.name.notna() & (cam.name.str.len() < 28) & ~cam.highway.str.startswith("motorway") & cam.intersects(vista)].copy()
-    calles["largo"] = calles.intersection(vista).length
-    calles = calles.dissolve("name", aggfunc={"largo": "sum"}).sort_values("largo", ascending=False).head(6)
-    for nombre, r in calles.iterrows():
+    for r in con.itertuples():
         g = r.geometry.intersection(vista)
         g = max(getattr(g, "geoms", [g]), key=lambda s: s.length)
-        p = g.interpolate(0.5, normalized=True)
-        if p.distance(lag) < 200:
-            continue
-        ax.text(p.x, p.y, nombre, fontsize=6.5, color="#fff7c2", ha="center", va="center", path_effects=HALO, zorder=9)
+        p = g.interpolate(0.45 if "Santa Ana" in r.nombre else 0.6, normalized=True)
+        ax.text(p.x - 60, p.y, r.nombre, fontsize=9, weight="bold", color="black", ha="right", va="center", zorder=12,
+                bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="black", lw=0.8))
 
-    # Fotos numeradas
-    fotos = pd.read_csv(fotos_csv)
-    fg = gpd.GeoDataFrame(fotos, geometry=gpd.points_from_xy(fotos.x, fotos.y), crs=32614).to_crs(3857)
     for r in fg.itertuples():
         ax.plot(r.geometry.x, r.geometry.y, "o", ms=15, mfc="#ffd400", mec="black", mew=1.4, zorder=10)
         ax.text(r.geometry.x, r.geometry.y, str(r.num), fontsize=8.5, weight="bold", ha="center", va="center", zorder=11)
 
     ax.set_xlim(x0, x1); ax.set_ylim(y0, y1); ax.set_axis_off()
-    ley = [Line2D([], [], color="#3ddc5f", lw=4, label="Andador peatonal"),
-           Line2D([], [], color="#ff8c00", lw=4, label="Rehabilitación de caminos"),
-           Line2D([], [], color="#ff3df5", lw=4, label="Acceso vehicular al bordo"),
-           Line2D([], [], color="#00e5ff", lw=4, label="Camino a parcelas"),
-           Line2D([], [], marker="X", color="#ff2020", lw=0, ms=10, label="Bache"),
-           Line2D([], [], marker="o", color="#ffd400", mec="black", lw=0, ms=10, label="Foto"),
-           Line2D([], [], color="#2b8cff", lw=2.5, label="Río Tula"),
-           Line2D([], [], color="#5ec8f2", lw=1.5, label="Canales DR003"),
-           Line2D([], [], color="#777", lw=1.4, ls=(0, (5, 3)), label="Tren México–Querétaro")]
-    ax.legend(handles=ley, loc="lower left", fontsize=7.5, framealpha=0.92)
-    ax.text(x1 - 40, y1 - 40, "Imagen: Esri World Imagery · Calles: © OpenStreetMap", fontsize=5.5, color="white",
-            ha="right", va="top", path_effects=HALO)
-    fig.savefig(salida, bbox_inches="tight", pad_inches=0.02)
+    ley = [Line2D([], [], color="#ff8c00", lw=4.5, label="Vialidades a rehabilitar"),
+           Line2D([], [], marker="o", color="#ffd400", mec="black", lw=0, ms=10, label="Foto")]
+    ax.legend(handles=ley, loc="upper right", fontsize=8, framealpha=0.92)
+    ax.text(x1 - 40, y0 + 40, "Imagen: Esri World Imagery · Calles: © OpenStreetMap", fontsize=5.5, color="white",
+            ha="right", va="bottom", path_effects=HALO)
+    fig.subplots_adjust(0, 0, 1, 1)
+    fig.set_size_inches(8.5, 8.5 / ASPECTO)
+    fig.savefig(salida, pad_inches=0)
     print(salida)
 
 
