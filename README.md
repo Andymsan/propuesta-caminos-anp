@@ -10,7 +10,9 @@ Caminos para llegar a **Tres Culturas** y a **Bojay** dentro de la propuesta de 
 
 El 20 de noviembre de 2026 el ejido entregó los caminos que necesita (KMZ con 9 puntos fotografiados).
 
-![Solicitudes del ejido](resultados/mapa_caminos_ejido.png)
+![Vialidades a rehabilitar en Bojay](resultados/mapa_caminos_ejido.png)
+
+Mapa de la nota conceptual: solo las vialidades a rehabilitar (rehabilitación de caminos, camino a parcelas hasta la carretera a Santa Ana y acceso vehicular al bordo), las calles con las que conectan y las fotos 1–6. Para la versión editable (`dibujo_ejido.py`) el fondo es la imagen Esri Wayback del 31 ago 2022, con la laguna sin lirio, y una flecha indica hacia dónde queda la estación Tula del Tren México–Querétaro (~2.5 km por calles locales desde el extremo sur de la carretera a Santa Ana).
 
 | Solicitud | km | En ANP | Sobre camino existente | Canales DR003 |
 |---|---|---|---|---|
@@ -87,7 +89,8 @@ Hallazgos:
 | `mapa.py` | Mapa PNG e interactivo HTML |
 | `datos/ejidatarios.gpkg` | Caminos y bache solicitados por el ejido (KMZ del 20 nov 2026) |
 | `datos/fotos_puntos.csv` | Número, archivo y ubicación de cada foto del recorrido |
-| `mapa_ejido.py` | Mapa satelital de las solicitudes con fotos numeradas y canales DR003 |
+| `mapa_ejido.py` | Mapa satelital de la nota: vialidades a rehabilitar, calles de conexión y fotos 1–6 |
+| `dibujo_ejido.py` | El mismo mapa como PowerPoint editable (figuras sobre imagen de 2022) con la flecha a la estación del tren |
 | `nota_caminos.py` | Nota conceptual en Word con tabla, mapa y fotos (las fotos no están en el repo) |
 | `resultados/red.gpkg` | Capas `red`, `rutas`, `estacionamientos_borde`, `cruces_agua`, `caminos_saca`, `conectores_candidatos` |
 
@@ -98,7 +101,8 @@ pip install -r requirements.txt
 python preparar_capas.py "D:/03_Trabajo/01_SEMARNAT" datos/osm.json D:/bordos-tres-culturas/datos/bordos.gpkg datos/capas.gpkg
 python red_y_rutas.py datos/capas.gpkg datos/puntos.csv resultados
 python mapa.py datos/capas.gpkg datos/puntos.csv resultados
-python mapa_ejido.py datos/capas.gpkg datos/ejidatarios.gpkg datos/fotos_puntos.csv "<carpeta distritos de riego>" resultados/mapa_caminos_ejido.png
+python mapa_ejido.py datos/capas.gpkg datos/ejidatarios.gpkg datos/fotos_puntos.csv "-" resultados/mapa_caminos_ejido.png
+python dibujo_ejido.py datos/capas.gpkg datos/ejidatarios.gpkg datos/fotos_puntos.csv documentos/mapa_editable.pptx
 python nota_caminos.py resultados/mapa_caminos_ejido.png datos/fotos_puntos.csv <carpeta_fotos> documentos/nota.docx
 ```
 
@@ -106,7 +110,7 @@ Los parámetros de costo (`ACTIVO`, `VEHICULAR`, `CASTIGO_ANP_RURAL`, etc.) est�
 
 ## Pendientes y limitaciones
 
-- **Estación del tren México–Querétaro**: no hay coordenada en los datos. Agregarla a `datos/puntos.csv` y volver a correr.
+- **Estación del tren México–Querétaro**: la prensa la ubica en la colonia El Llano (Publimetro, Criterio Hidalgo), pero no hay confirmación oficial y el trazo se modificó (Milenio). El mapa solo indica la dirección; falta la coordenada definitiva en `datos/puntos.csv` para calcular rutas.
 - **Drenes agrícolas**: no existe una capa; DR003 solo trae canales. Hay que digitalizarlos (ortofoto y recorrido) o derivarlos del MDT del IMTA y sumarlos a `canales`.
 - **Bordo Tres Culturas–Bojay bajo el Arco Norte**: no está en `bordos.gpkg`. Quedan ~260 m sin datos entre el fin del bordo y la laguna. Hay que digitalizarlo para que la ruta a Bojay use la ciclovía continua.
 - **Sendero de la barranca** PN Tula–Tres Culturas: no está en OSM. Hay que levantarlo con GPS.
