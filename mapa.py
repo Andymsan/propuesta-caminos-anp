@@ -1,7 +1,3 @@
-"""Mapas de la propuesta: PNG (para la presentación) y HTML interactivo.
-
-Uso: python mapa.py datos/capas.gpkg datos/puntos.csv resultados
-"""
 import sys
 import warnings
 
