@@ -57,13 +57,13 @@ def osm_a_capas(ruta_json, recorte):
 
 def main(base, osm_json, bordos_gpkg, salida):
     B = base.rstrip("/\\") + "/"
-    RT = B + "01_rio tula/"
+    RT = B + "01_Rio Tula/"
     anp = gpd.read_file(B + "rios-vivos/data/tula/nueva_anp.geojson").to_crs(CRS)[["geometry"]]
     anp["nombre"] = "APFF Corredor biocultural Tres Culturas (propuesta)"
     recorte = box(*anp.buffer(MARGEN_M).total_bounds)
 
     capas = {"anp": anp}
-    capas["pn_tula"] = leer(RT + "2025/01_Rio Tula/Data/01_Mapa base/CONANP/232_ANP_ITRF08_15042025/"
+    capas["pn_tula"] = leer(RT + "00_Mapa base/04_Areas protegidas/232_ANP_ITRF08_15042025/"
                             "232_ANP_ITRF08_15042025.shp", recorte)[["NOMBRE", "CAT_MANEJO", "geometry"]]
     capas["zona_inundable"] = leer(B + "rios-vivos/data/tula/zona_inundable.geojson", recorte)[["geometry"]]
     capas["zona_federal"] = leer(B + "rios-vivos/data/tula/zona_federal.geojson", recorte)[["geometry"]]
@@ -71,30 +71,30 @@ def main(base, osm_json, bordos_gpkg, salida):
     capas["bordos_tc"] = gpd.read_file(bordos_gpkg, layer="bordo").to_crs(CRS)
 
     # Canales de riego (DR003) + canales INEGI 1:50k
-    dr = leer(RT + "2025/01_Rio Tula/Data/05_Cuenca/distritos de riego/Canales 3DR_Tutla/"
+    dr = leer(RT + "00_Mapa base/06_Distritos de riego/Canales 3DR_Tutla/"
                    "Canales 3DR_Tutla/DR003/dr003_rc.shp", recorte)
     dr = dr.assign(fuente="Conagua DR003", tipo=dr.TIPO_RED.str.title(), nivel=dr.NIVEL_RED,
                    revest=dr.TIPO_REV, nombre=dr.NOMBRE)[["fuente", "tipo", "nivel", "revest", "nombre", "geometry"]]
     inegi = []
-    for f in glob.glob(RT + "2025/01_Rio Tula/Data/01_Mapa base/topo/*/conjunto_de_datos/canal50_l.shp"):
+    for f in glob.glob(RT + "00_Mapa base/02_Topografia/Cartas INEGI y DEM/*/conjunto_de_datos/canal50_l.shp"):
         g = leer(f, recorte)
         if len(g):
             inegi.append(g.assign(fuente="INEGI 1:50k", tipo="Canal", nivel=None, revest=None,
                                   nombre=g.get("nombre"))[["fuente", "tipo", "nivel", "revest", "nombre", "geometry"]])
     capas["canales"] = gpd.GeoDataFrame(pd.concat([dr] + inegi, ignore_index=True), crs=CRS)
 
-    corr = [leer(f, recorte) for f in glob.glob(RT + "2025/01_Rio Tula/Data/01_Mapa base/topo/*/conjunto_de_datos/corriente_ag50_l.shp")]
+    corr = [leer(f, recorte) for f in glob.glob(RT + "00_Mapa base/02_Topografia/Cartas INEGI y DEM/*/conjunto_de_datos/corriente_ag50_l.shp")]
     corr = [c for c in corr if len(c)]
     capas["corrientes"] = gpd.GeoDataFrame(pd.concat(corr, ignore_index=True), crs=CRS)[["nombre", "condicion", "geometry"]]
 
-    loc = [leer(f, recorte) for f in glob.glob(RT + "2025/01_Rio Tula/Data/01_Mapa base/topo/*/conjunto_de_datos/localidad50_p.shp")]
+    loc = [leer(f, recorte) for f in glob.glob(RT + "00_Mapa base/02_Topografia/Cartas INEGI y DEM/*/conjunto_de_datos/localidad50_p.shp")]
     capas["localidades"] = gpd.GeoDataFrame(pd.concat([l for l in loc if len(l)], ignore_index=True), crs=CRS)[["nombre", "nume_hab", "geometry"]]
 
-    capas["edificios"] = leer(RT + "2026/01_riotula/diseño/shp/buildings 32614.shp", recorte)[["confidence", "geometry"]]
-    capas["parcelas_ran"] = leer(RT + "2026/01_riotula/data/tenencia de la tierra/"
-                                 "ran_parcelas_hidalgo_tula%252520de%252520allende.kml", recorte)[["Name", "geometry"]]
-    capas["parcelas_zf"] = leer(RT + "2026/01_riotula/data/delimitacion federal/parcelas_zona_inundable.geojson", recorte)[["geometry"]]
-    capas["colectores"] = leer(RT + "2026/01_riotula/data/colectores/colectores.geojson", recorte)[["Name", "geometry"]]
+    capas["edificios"] = leer(RT + "11_Diseno/03_Capas de diseno/shp/buildings 32614.shp", recorte)[["confidence", "geometry"]]
+    capas["parcelas_ran"] = leer(RT + "07_Social y territorio/02_Tenencia de la tierra/"
+                                 "ran_parcelas_hidalgo_tula de allende.kml", recorte)[["Name", "geometry"]]
+    capas["parcelas_zf"] = leer(RT + "04_Inundaciones/02_Delimitacion federal/parcelas_zona_inundable.geojson", recorte)[["geometry"]]
+    capas["colectores"] = leer(RT + "02_Calidad del agua y saneamiento/05_Colectores/colectores.geojson", recorte)[["Name", "geometry"]]
 
     capas.update(osm_a_capas(osm_json, recorte))
 
