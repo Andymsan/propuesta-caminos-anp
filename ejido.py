@@ -1,10 +1,3 @@
-"""Mapa editable (PowerPoint -> Google Slides) de las vialidades a rehabilitar en Bojay.
-
-Fondo: Esri Wayback 2022-08-31 (laguna sin lirio). Encima, como figuras editables:
-vialidades a rehabilitar, río, calles de conexión con su nombre, fotos numeradas y leyenda.
-
-Uso: python dibujo_ejido.py datos/capas.gpkg datos/ejidatarios.gpkg datos/fotos_puntos.csv documentos/mapa_editable.pptx
-"""
 import sys
 
 import geopandas as gpd
